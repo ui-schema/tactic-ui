@@ -62,15 +62,16 @@ export interface DecoTW {
 }
 
 // todo: `Deco` must receive "props without those which Deco injects", so maybe two `PropsSpec` mappings? or data? or ...?
-//       e.g. impacts "required by component and injected by decorator" together with `LeafNode`/`DataPluck` typings: not removing the required `props` from `Deco.PG`
-//       note: using only `DecoTW` would work correctly for user etc. BUT impacts the `decorator.run` input-typing
+//       e.g. impacts "required by component and injected by decorator",
+//            together with `LeafNode`/`DataPluck` typings: not removing the required `props` from `Deco.PG` when it should
+//       note: using only `DecoTW` would work correctly for `Leaf` usages BUT impacts the `decorator.run` input-typing in e.g. a custom `LeafNode`
 // const dec = new Deco<DecoTW>()
 const dec = new Deco<DecoTW & CustomLeafPropsSpec[keyof CustomLeafPropsSpec]>()
     .use(<P extends DecoTW>(p: P): DecoTW & { required: boolean } => ({...p, required: true}))
     .use(<P extends DecoTW & { required?: boolean }>(p: P): DecoTW & { valid: boolean } => ({...p, valid: false}))
 // .use(<P extends DecoTW>(p: P): DecoTW & { valid: boolean } => ({...p, valid: false}))
 
-// this typing is `props` of the `LeafNode` rendering, use e.g. when defining data previously;
+// this typing is `props` of the `LeafNode`, so before `deco.run` was executed
 // contains own data-typing AND required by decorators
 export type DecoDataPl = DecoDataPluck<CustomLeafPropsSpec[keyof CustomLeafPropsSpec], typeof dec>
 // this typing is `props` of the `Leaf` -> your component
@@ -100,7 +101,7 @@ export const customRenderMapping: LeafsRenderMapping<CustomLeafsNodeSpec, Custom
     components: {},
 }
 
-// 👉 7. Define the LeafEngine, with the specific matcher and what the active decorator
+// 👉 7. Define the LeafEngine, with the specific decorator and matcher
 
 const engine: TreeEngine<CustomLeafPropsSpec, typeof dec, ReactLeafsRenderMatcher<typeof dec, CustomLeafPropsSpec, CustomLeafComponents>> = {
     decorator: dec,
@@ -199,7 +200,7 @@ export const DemoComponentInCtx: React.FC<{}> = () => {
 export const DemoComponentStatic: React.FC<{}> = () => {
     return <>
         <LeafsProvider>
-            {/* for static usages the Leaf typing are strict, this example strictly types `value` against `type` */}
+            {/* for static usages the `Leaf` typing is strict, this example correlates `value` against `type` */}
             <Leaf
                 type={'headline'}
                 storePath={'/0'}
