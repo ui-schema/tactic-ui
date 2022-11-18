@@ -10,6 +10,7 @@ import { Deco, DecoDataPluck } from '@tactic-ui/react/Deco'
     },
 ): JSX.Element | null => {*/
 
+// todo: maybe add `P extends {} = {}` to support similar loose-typing overwrites like for `WidgetProps` in UIS
 export const LeafNode = <LDS extends GenericLeafsDataSpec, DCP extends Deco<{}>, CC extends {}>(
     props: DecoDataPluck<LDS[keyof LDS], DCP> & {
         context: React.Context<LeafsContext<LDS, CC, DCP>>
@@ -39,6 +40,7 @@ export const defineLeafNode = <LDS extends GenericLeafsDataSpec, DCP extends Dec
 ) => {
     const useLeafs = (): LeafsContext<LDS, CC, DCP> => React.useContext(leafsContext)
 
+    // todo: maybe add `P extends {} = {}` and rename current `P` to `DDP`, to support similar loose-typing overwrites like for `WidgetProps` in UIS
     const LeafNode = <P extends DecoDataPluck<LDS[keyof LDS], DCP>>(props: P): JSX.Element | null => {
         const {engine, leafs} = useLeafs()
 

@@ -1,12 +1,11 @@
 {
     "name": "@tactic-ui/engine",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "",
     "homepage": "",
     "author": "Michael Becker <michael@bemit.codes>",
     "license": "MIT",
-    "keywords": [
-    ],
+    "keywords": [],
     "repository": {
         "type": "git",
         "url": "https://github.com/ui-schema/tactic-ui.git",
@@ -15,7 +14,7 @@
     "bugs": {
         "url": "https://github.com/ui-schema/tactic-ui/issues"
     },
-    "module": "build/esm/index.js",
+    "module": "build/index.js",
     "type": "module",
     "exports": {
         ".": "./build/index.js",
@@ -26,13 +25,8 @@
     "scripts": {
         "dtsgen": "tsc -d --emitDeclarationOnly --pretty && merge-dirs build/dts build && rm -rf build/dts && rm -rf build/**/*.test.* build/**/*.mock.*"
     },
-    "dependencies": {
-    },
-    "devDependencies": {
-    },
-    "peerDependencies": {
-    },
     "publishConfig": {
         "access": "public"
-    }
+    },
+    "gitHead": "c3f7f310627311433b7afae3e1e73177f7e7fdbd"
 }
