@@ -12,7 +12,7 @@ const dec = new Deco<DecoTW>()
 // .use((p: DecoTW & { required?: boolean }): DecoTW & { valid?: boolean } => ({...p, valid: false}))
 // .use((p) => ({...p}))
 
-// "lazy" typings for also:
+// "lazy" typings work also:
 /*const dec = new Deco<DecoTW>()
     .use((p): { required: boolean } => ({...p, required: true}))// CASE: A
     .use((p: { required: boolean }): { valid?: boolean } => ({...p, valid: false}))// CASE: A
