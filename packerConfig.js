@@ -72,15 +72,15 @@ packer({
         if(execs.indexOf('doServe') !== -1) {
             console.log('[packer] is now serving (after ' + elapsed + 'ms)')
         } else {
-            if(execs.indexOf('doBuild') !== -1 && execs.indexOf('doBuildBackend') !== -1) {
+            if(execs.indexOf('doBuild') !== -1) {
                 const nodePackages = [
-                    path.resolve(__dirname, 'packages', 'uis-system'),
-                    path.resolve(__dirname, 'packages', 'uis-json-pointer'),
-                    path.resolve(__dirname, 'packages', 'uis-json-schema'),
+                    path.resolve(__dirname, 'packages', 'tactic-engine'),
+                    path.resolve(__dirname, 'packages', 'tactic-vanilla'),
                 ]
 
                 const saver = nodePackages.map((pkg) => {
                     return new Promise(((resolve, reject) => {
+                        console.log(' rewrite package.json of ' + path.dirname(pkg))
                         const packageFile = JSON.parse(fs.readFileSync(path.join(pkg, 'package.json')).toString())
                         // todo: for backends: here check all `devPackages` etc. an replace local-packages with `file:` references,
                         //       then copy the `build` of that package to e.g. `_modules` in the backend `build`
@@ -94,6 +94,12 @@ packer({
                                             '.' + packageFile.exports[pkgName].slice('./src'.length) :
                                             packageFile.exports[pkgName],
                             }), packageFile.exports)
+                        }
+                        if(packageFile.module && packageFile.module.startsWith('build/')) {
+                            packageFile.module = packageFile.module.slice('build/'.length)
+                        }
+                        if(packageFile.module && packageFile.module.startsWith('src/')) {
+                            packageFile.module = packageFile.module.slice('src/'.length)
                         }
                         if(packageFile.main && packageFile.main.startsWith('build/')) {
                             packageFile.main = packageFile.main.slice('build/'.length)

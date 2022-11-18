@@ -1,12 +1,11 @@
 {
     "name": "@tactic-ui/react",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "",
     "homepage": "",
     "author": "Michael Becker <michael@bemit.codes>",
     "license": "MIT",
-    "keywords": [
-    ],
+    "keywords": [],
     "repository": {
         "type": "git",
         "url": "https://github.com/ui-schema/tactic-ui.git",
@@ -21,7 +20,7 @@
         "dtsgen": "tsc -d --emitDeclarationOnly --pretty && merge-dirs build/dts/tactic-react/src build && rm -rf build/dts && rm -rf build/**/*.test.* build/**/*.mock.*"
     },
     "dependencies": {
-        "@tactic-ui/engine": "~0.0.1"
+        "@tactic-ui/engine": "~0.0.2"
     },
     "devDependencies": {
         "@types/react": "^18.0",
@@ -37,5 +36,6 @@
     },
     "publishConfig": {
         "access": "public"
-    }
+    },
+    "gitHead": "c3f7f310627311433b7afae3e1e73177f7e7fdbd"
 }

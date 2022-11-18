@@ -3,8 +3,8 @@ const path = require('path');
 const sloc = require('sloc');
 
 const include = [
-    path.resolve(__dirname, 'packages', 'ctrls-progress/demo'),
-    path.resolve(__dirname, 'packages', 'ctrls-progress/src'),
+    path.resolve(__dirname, 'packages', 'tactic-engine/src'),
+    path.resolve(__dirname, 'packages', 'tactic-react/src'),
 ];
 
 let scannner = function(dir, root, fileList = []) {

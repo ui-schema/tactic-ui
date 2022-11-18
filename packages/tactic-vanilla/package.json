@@ -16,11 +16,10 @@
     "bugs": {
         "url": "https://github.com/ui-schema/tactic-ui/issues"
     },
-    "module": "build/esm/index.js",
+    "module": "build/index.js",
     "type": "module",
     "exports": {
-        ".": "./build/index.js",
-        "./unescapePointer": "./build/esm/unescapePointer/index.js"
+        ".": "./build/index.js"
     },
     "scripts": {
         "dtsgen": "tsc -d --emitDeclarationOnly --pretty && merge-dirs build/dts build && rm -rf build/dts && rm -rf build/**/*.test.* build/**/*.mock.*"

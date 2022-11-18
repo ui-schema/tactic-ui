@@ -1,4 +1,4 @@
-<h1 align="center">Tactic-UI-Controls</h1>
+<h1 align="center">Tactic-UI</h1>
 
 [![Github actions Build](https://github.com/ui-schema/tactic-ui/actions/workflows/blank.yml/badge.svg)](https://github.com/ui-schema/tactic-ui/actions)
 [![react compatibility](https://img.shields.io/badge/React-%3E%3D17-success?style=flat-square&logo=react)](https://reactjs.org/)
@@ -11,7 +11,8 @@
 npm i -S @tactic-ui/react
 ```
 
-[*ReactJS DEV Demo: Folder*](./packages/tactic-react/demo/src/pages)
+- [ReactJS DEV Demo: static / automatic rendering](./packages/tactic-react/demo/src/pages/PageDemoByDataList.tsx)
+- [pure-TS `Deco` engine usage](./packages/tactic-react/demo/src/demoDeco.ts)
 
 ## Versions
 

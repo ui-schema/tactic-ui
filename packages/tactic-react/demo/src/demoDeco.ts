@@ -1,4 +1,4 @@
-import { Deco, DecoDataResult, ExtractDecoPayload, ExtractDecoReturn } from '@tactic-ui/react/Deco'
+import { Deco, DecoDataPluck, DecoDataResult, ExtractDecoPayload, ExtractDecoReturn } from '@tactic-ui/engine/Deco'
 
 export interface DecoTW {
     storePath: string
@@ -12,6 +12,7 @@ const dec = new Deco<DecoTW>()
 // .use((p: DecoTW & { required?: boolean }): DecoTW & { valid?: boolean } => ({...p, valid: false}))
 // .use((p) => ({...p}))
 
+// "lazy" typings work also:
 /*const dec = new Deco<DecoTW>()
     .use((p): { required: boolean } => ({...p, required: true}))// CASE: A
     .use((p: { required: boolean }): { valid?: boolean } => ({...p, valid: false}))// CASE: A
@@ -22,7 +23,7 @@ export const r = dec.run({storePath: ''})
 export const d0: ExtractDecoPayload<typeof dec> = {storePath: ''}
 export const d1: ExtractDecoReturn<typeof dec> = {required: true}
 
-export function decoFn<D extends {}, DCP extends Deco<{}, {}>>(dec: DCP, d0: ExtractDecoPayload<DCP>): DecoDataResult<D, DCP> {
+export function decoFn<D extends {}, DCP extends Deco<{}, {}>>(dec: DCP, d0: DecoDataPluck<D, DCP>): DecoDataResult<D, DCP> {
 // export function decoFn<DCP extends Deco<{}, {}>>(dec: DCP, d0: ExtractDecoProps<DCP>): ExtractDecoReturn<DCP> & ExtractDecoProps<DCP> {
     return dec.run(d0)
     // return dec.run(d0) as ExtractDecoProps<DCP>
@@ -30,17 +31,3 @@ export function decoFn<D extends {}, DCP extends Deco<{}, {}>>(dec: DCP, d0: Ext
 
 export const r2 = decoFn<DecoTW, typeof dec>(dec, {storePath: ''})
 // r2.valid
-
-///
-// todo: this syntax for generic-generic is usable already, but doesn't "truly resolve higher-ordered-kinds"
-//       check if this can be used for some deco/data-spec typing which is currently user-land (e.g. LNS)
-///
-
-
-/*export interface MyGeneric1<T> {
-    a: T
-}
-
-export interface MyFunctor<G extends MyGeneric1<T>, T extends string> {
-    d: G
-}*/
