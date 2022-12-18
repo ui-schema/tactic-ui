@@ -1,4 +1,4 @@
-import { Deco, DecoDataPluck, DecoDataResult, ExtractDecoPayload, ExtractDecoReturn } from '@tactic-ui/engine/Deco'
+import { Deco, DecoDataPluck, DecoDataResult, ExtractDecoPayload, ExtractDecoReturn } from '@tactic-ui/react/Deco'
 
 export interface DecoTW {
     storePath: string

@@ -5,7 +5,7 @@
 3. Install & link the `packages`: `npm run bootstrap && npm run link`
 4. Start dev-server: `npm start`
     - (will clean-dist + start demo app)
-5. Open browser on [localhost:4200](http://localhost:9230) for demo
+5. Open browser on [localhost:4230](http://localhost:4230) for demo
 6. Explore [packages](packages)
 7. Code -> Commit -> Pull Request -> Being Awesome!
 

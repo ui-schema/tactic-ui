@@ -1,7 +1,7 @@
 import React from 'react'
 import {
     createLeafsContext, defineLeafsProvider,
-    LeafsRenderMapping, TreeEngine,
+    LeafsRenderMapping, LeafsEngine,
     ReactLeafsRenderMatcher, ReactLeafsNodeSpec,
 } from '@tactic-ui/react/LeafsProvider'
 import { defineLeafNode, LeafNode } from '@tactic-ui/react/LeafNode'
@@ -15,7 +15,7 @@ import { Typo } from '../components/Styles'
 //    - for LeafEngines which provide data-bindings it should also contain e.g. `storeKeys` / `storePath` / `entityName`+`entityId`
 //    - for strict typing mapping inside of the `Leaf`, add one generic param, which can be used for equality check,
 //      the value must equal a `key` of `CustomLeafDataSpec`
-export interface CustomLeafDataType<T extends string> {// todo: maybe `extends keyof any` instead of just `extends string`
+export interface CustomLeafDataType<T extends string> {
     type: T
 }
 
@@ -41,7 +41,7 @@ export interface CustomLeafDataSpec {
     // [k: string]: LeafData<string> & { content: string | number }
 }
 
-// 👉 4. Define a React Component type which maps the data mappings (which are now also props mappings)
+// 👉 4. Define a `props` typing map for React Components, this remaps the data mappings (which are now also props mappings)
 //    - note: this will make something like: `(CustomLeafPropsSpec['headline'] | CustomLeafPropsSpec['paragraph'] | CustomLeafPropsSpec['breakThematic'])`
 
 export type CustomLeafPropsSpec = {
@@ -79,7 +79,7 @@ export type DecoDataPl = DecoDataPluck<CustomLeafPropsSpec[keyof CustomLeafProps
 // todo: not tested yet for decorators: "remove some existing prop from typing"
 export type DecoDataRe<S extends keyof CustomLeafPropsSpec> = DecoDataResult<CustomLeafPropsSpec[S], typeof dec>
 
-// todo: when using the node spec here, the problem with generic-generics is solvable?! and allows crystal clear widget typing on receiving props?
+// the final typing for the component-props-map
 export type CustomLeafsNodeSpec = ReactLeafsNodeSpec<CustomLeafPropsSpec, typeof dec>
 
 // 👉 6. Map the actual `Leaf` implementations
@@ -87,6 +87,7 @@ export type CustomLeafsNodeSpec = ReactLeafsNodeSpec<CustomLeafPropsSpec, typeof
 const BreakThematic: React.FC<DecoDataRe<'breakThematic'>> =
     (props) => <hr title={props.storePath} style={{width: '100%'}}/>
 
+// todo: it currently is not possible to type the `leafs` partial -> all in `CustomLeafsNodeSpec` must
 const leafs: CustomLeafsNodeSpec = {
     headline: (props) => props.value.type === 'headline' ? <Typo component={'h3'} title={props.storePath}>{props.value.content || null}</Typo> : null,
     paragraph: (props) => props.value.type === 'paragraph' ? <Typo component={'p'} title={props.storePath}>{props.value.content || null}</Typo> : null,
@@ -103,7 +104,7 @@ export const customRenderMapping: LeafsRenderMapping<CustomLeafsNodeSpec, Custom
 
 // 👉 7. Define the LeafEngine, with the specific decorator and matcher
 
-const engine: TreeEngine<CustomLeafPropsSpec, typeof dec, ReactLeafsRenderMatcher<typeof dec, CustomLeafPropsSpec, CustomLeafComponents>> = {
+const engine: LeafsEngine<CustomLeafPropsSpec, typeof dec, ReactLeafsRenderMatcher<typeof dec, CustomLeafPropsSpec, CustomLeafComponents>> = {
     decorator: dec,
     matcher: (leafs, ld) => {
         // const valid = 'valid' in ld ? ld.valid : undefined
@@ -152,7 +153,7 @@ const leafData: CustomLeafDataSpec[keyof CustomLeafDataSpec][] = [
 ]
 
 // todo: optimize so it uses `assert` maybe? target: remove `any` and do not use `as` casting
-const mapToProps = <V extends { type: string }>(storePath: string, value: V): V extends { type: infer T2 extends keyof CustomLeafDataSpec } ? { [P in T2]: CustomLeafPropsSpec[P] }[T2] : never => ({
+export const mapToProps = <V extends { type: string }>(storePath: string, value: V): V extends { type: infer T2 extends keyof CustomLeafDataSpec } ? { [P in T2]: CustomLeafPropsSpec[P] }[T2] : never => ({
     type: value.type,
     storePath: storePath,
     value: value,
@@ -163,7 +164,7 @@ export const DemoComponentByArray: React.FC<{}> = () => {
         <LeafsProvider>
             {/* todo: this seems to be the most prominent position where the typing fails to infer it correctly */}
             {/*
-              * for automatic rendering, the items are be casted to a non-exclusive typing, this uses the correlated union types picking,
+              * for automatic rendering, the items are casted to a non-exclusive typing, this uses the correlated union types picking,
               * https://github.com/microsoft/TypeScript/issues/30581
               * As inferred from `LeafData[]`, the `type` would be incompatible, as this demo doesn't provide a `string` default `Leaf` mapping,
               * e.g. `('headline' & 'paragraph')` will resolve to `never`, which is what is inferred here for `LeafData['type']`
@@ -171,11 +172,25 @@ export const DemoComponentByArray: React.FC<{}> = () => {
             {leafData.map((ld, i) =>
                 <Leaf key={i} {...mapToProps('/' + i, ld)}/>)}
         </LeafsProvider>
+
+        <hr/>
+
+        <LeafsProvider>
+            {leafData.map((ld, i) =>
+                <Leaf
+                    key={i}
+                    {...{
+                        type: ld.type,
+                        storePath: '/' + i,
+                        value: ld,
+                    } as DecoDataRe<keyof CustomLeafPropsSpec>}
+                />)}
+        </LeafsProvider>
     </>
 }
 
 /**
- * demo component for, how to use `useLeafs` to build a custom `LeafNode` render component
+ * demo: use `useLeafs` to build a custom `LeafNode` render component
  */
 export const DemoComponentInCtx: React.FC<{}> = () => {
     const {engine, leafs} = useLeafs()
@@ -186,7 +201,7 @@ export const DemoComponentInCtx: React.FC<{}> = () => {
     const r = engine.decorator.run<CustomLeafPropsSpec[keyof CustomLeafPropsSpec]>(leafData)
 
     // todo: someday, hopefully "React.ComponentType" can be used easy and safely in TS with `extends` and stuff [TS2322]
-    const Comp = engine.matcher(leafs, r) as undefined |
+    const Comp = engine.matcher(leafs, r) as
         React.ComponentType<DecoDataResult<CustomLeafPropsSpec[keyof CustomLeafPropsSpec], typeof dec>>
 
     if(typeof Comp === 'undefined') {
@@ -199,7 +214,10 @@ export const DemoComponentInCtx: React.FC<{}> = () => {
 
 export const DemoComponentStatic: React.FC<{}> = () => {
     return <>
-        <LeafsProvider>
+        <LeafsProvider
+            // supports overwrites that are compatible with the provider typing
+            // leafs={}
+        >
             {/* for static usages the `Leaf` typing is strict, this example correlates `value` against `type` */}
             <Leaf
                 type={'headline'}

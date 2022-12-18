@@ -6,7 +6,7 @@ export type LeafsRenderMatcher<DCP extends Deco<{}>, LDS extends GenericLeafsDat
     ld: P,
 ) => LNS[keyof LDS]
 
-export interface TreeEngine<LDS extends GenericLeafsDataSpec, DCP extends Deco<{}>, M extends LeafsRenderMatcher<DCP, LDS> = LeafsRenderMatcher<DCP, LDS>, IDS extends string | number = string | number> {
+export interface LeafsEngine<LDS extends GenericLeafsDataSpec, DCP extends Deco<{}>, M extends LeafsRenderMatcher<DCP, LDS> = LeafsRenderMatcher<DCP, LDS>, IDS extends string | number = string | number> {
     // todo: when using decorator, the `Leaf` props would be passed to decorator and only what decorator returns will passed to `Leaf`
     // todo: support custom decorators somehow - if possible without higher-ordered kinds
     // widgetDecorator?: (LeafNode: LeafsDefaultNodeType<LDS[keyof LDS]>) => <DP extends DCP>(props: DP) => JSX.Element | null

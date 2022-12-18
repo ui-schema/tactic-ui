@@ -24,7 +24,7 @@ export const LeafNode = <LDS extends GenericLeafsDataSpec, DCP extends Deco<{}>,
     const nextProps = engine.decorator.run<LDS[keyof LDS]>(propsTmp)
 
     // todo: someday, hopefully "React.ComponentType" can be used easy and safely in TS with `extends` and stuff [TS2322]
-    const LeafComponent = engine.matcher(leafs, nextProps) as undefined |
+    const LeafComponent = engine.matcher(leafs, nextProps) as
         ReactLeafDefaultNodeType<DecoDataResult<LDS[keyof LDS], DCP>>
 
     if(typeof LeafComponent === 'undefined') {
@@ -46,7 +46,7 @@ export const defineLeafNode = <LDS extends GenericLeafsDataSpec, DCP extends Dec
 
         const nextProps = engine.decorator.run<LDS[keyof LDS]>(props)
         // todo: someday, hopefully "React.ComponentType" can be used easy and safely in TS with `extends` and stuff [TS2322]
-        const LeafComponent = engine.matcher(leafs, nextProps) as undefined |
+        const LeafComponent = engine.matcher(leafs, nextProps) as
             ReactLeafDefaultNodeType<DecoDataResult<LDS[keyof LDS], DCP>>
 
         if(typeof LeafComponent === 'undefined') {

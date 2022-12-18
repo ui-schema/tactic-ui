@@ -5,14 +5,56 @@
 [![MIT license](https://img.shields.io/npm/l/@ui-controls/progress?style=flat-square)](https://github.com/ui-schema/tactic-ui/blob/main/LICENSE)
 ![Typed](https://flat.badgen.net/badge/icon/Typed?icon=typescript&label&labelColor=blue&color=555555)
 
-> Experimental architecture for UIS core replacement of `PluginStack`/`WidgetEngine`
+Render engine for AST & Widget systems - bring your own UI and data-spec - strongly typed.
+
+> ⚗ Experimental architecture for UIS core replacement of `PluginStack`/`WidgetEngine`
+
+- ⚗ @tactic-ui/react [![npm (scoped)](https://img.shields.io/npm/v/@tactic-ui/react?style=flat-square)](https://www.npmjs.com/package/@tactic-ui/react)
+- ⚗ @tactic-ui/engine [![npm (scoped)](https://img.shields.io/npm/v/@tactic-ui/engine?style=flat-square)](https://www.npmjs.com/package/@tactic-ui/engine)
+- 🚧 ~~@tactic-ui/vanilla~~ [![npm (scoped)](https://img.shields.io/npm/v/@tactic-ui/vanilla?style=flat-square)](https://www.npmjs.com/package/@tactic-ui/vanilla)
+
+## ReactJS
 
 ```shell
-npm i -S @tactic-ui/react
+npm i @tactic-ui/react
 ```
 
-- [ReactJS DEV Demo: static / automatic rendering](./packages/tactic-react/demo/src/pages/PageDemoByDataList.tsx)
-- [pure-TS `Deco` engine usage](./packages/tactic-react/demo/src/demoDeco.ts)
+- [DEV Demo: static / automatic rendering](./packages/tactic-react/demo/src/pages/PageDemoByDataList.tsx)
+- [DEV Demo: pure-TS `Deco` usage](./packages/tactic-react/demo/src/demoDeco.ts)
+
+## JS / Vanilla
+
+> todo: a small runtime for server and web to render leafs
+
+```shell
+npm i @tactic-ui/vanilla
+```
+
+### Browser
+
+> todo
+
+### NodeJS
+
+> todo
+
+## Engine
+
+Provides the `Deco` implementation, otherwise contains only the basic typings for leafs and mappings.
+
+> not needed to install additionally, this module is included and re-exported from `@tactic-ui/react`
+
+> ⚠️⚠️ [ESM only package](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c) (atm., maybe forever)
+
+```shell
+npm i -S @tactic-ui/engine
+```
+
+```tsx
+import { Deco } from '@tactic-ui/engine/Deco'
+// is the same as:
+import { Deco } from '@tactic-ui/react/Deco'
+```
 
 ## Versions
 
