@@ -1,7 +1,7 @@
 import process from 'process'
 import boot from './boot.js'
 import { testCommand } from './commands/testCommand.js'
-import { pointerCommand } from './commands/pointerCommand.js'
+// import { pointerCommand } from './commands/pointerCommand.js'
 
 (() => {
     boot()
@@ -16,10 +16,10 @@ import { pointerCommand } from './commands/pointerCommand.js'
             testCommand(opts[0])
                 .then(() => undefined)
             break
-        case 'pointer':
-            pointerCommand()
-                .then(() => undefined)
-            break
+        // case 'pointer':
+        //     pointerCommand()
+        //         .then(() => undefined)
+        //     break
         default:
             console.error('Command not found')
             break

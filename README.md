@@ -19,7 +19,7 @@ Render engine for AST & Widget systems - bring your own UI and data-spec - stron
 npm i @tactic-ui/react
 ```
 
-- [DEV Demo: static / automatic rendering](./packages/tactic-react/demo/src/pages/PageDemoByDataList.tsx)
+- [DEV Demo: static / automatic rendering](./packages/tactic-react/demo/src/pages/PageDemoDecoratorBasic.tsx)
 - [DEV Demo: pure-TS `Deco` usage](./packages/tactic-react/demo/src/demoDeco.ts)
 
 ## JS / Vanilla
@@ -40,7 +40,7 @@ npm i @tactic-ui/vanilla
 
 ## Engine
 
-Provides the `Deco` implementation, otherwise contains only the basic typings for leafs and mappings.
+~~Provides the `Deco` implementation~~, otherwise contains only the basic typings for leafs and mappings.
 
 > not needed to install additionally, this module is included and re-exported from `@tactic-ui/react`
 
@@ -48,12 +48,6 @@ Provides the `Deco` implementation, otherwise contains only the basic typings fo
 
 ```shell
 npm i -S @tactic-ui/engine
-```
-
-```tsx
-import { Deco } from '@tactic-ui/engine/Deco'
-// is the same as:
-import { Deco } from '@tactic-ui/react/Deco'
 ```
 
 ## Versions
