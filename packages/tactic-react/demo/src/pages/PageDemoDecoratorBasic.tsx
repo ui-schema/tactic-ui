@@ -73,10 +73,17 @@ function LeafNode<
     />
 }
 
-// an alternative for a more strict working LeafNode with more baked in
-const StaticLeafNode = LeafNode as
+// an alternative for a more strict working LeafNode, with more baked in
+const StrictLeafNode = LeafNode as
     (<D2 extends CustomLeafPropsSpec[keyof CustomLeafPropsSpec]>(
         props: Omit<DecoratorProps<NonNullable<D2>, typeof deco>, LeafNodeInjected>,
+    ) => React.JSX.Element | null)
+
+// another alternative for a more strict working LeafNode, with more baked in,
+// and using a "key prop strategy" for type inferring; the `type` property is defined in `CustomLeafDataType`;
+const StrictKeyPropLeafNode = LeafNode as
+    (<K extends keyof CustomLeafPropsSpec, P extends CustomLeafPropsSpec[K] = CustomLeafPropsSpec[K]>(
+        props: Omit<DecoratorProps<NonNullable<P>, typeof deco>, LeafNodeInjected>,
     ) => React.JSX.Element | null)
 
 
@@ -114,6 +121,8 @@ function DemoRenderer<P extends DecoratorPropsNext>(
         render,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         next,
+        // todo: shouldn't `settings` be passed down here? maybe that is the solution to check for compat at the end,
+        //       using the end result to check against the requirements of all leaf-props (in provider only)
         settings,
         ...p
     }: P & DemoDecoratorProps & { id: string } & DemoRendererProps,
@@ -216,7 +225,7 @@ const DemoStatic: React.FC = () => {
             </div>
             {/* todo: without the explicit props, a mismatched nested-type and root-type don't cause an error */}
             <div className={'flex col-6'}>
-                <StaticLeafNode<CustomLeafPropsSpec['paragraph']>
+                <StrictLeafNode<CustomLeafPropsSpec['paragraph']>
                     title={'Skill 03'}
                     type={'paragraph'}
                     value={{content: 'Skill 03 Lorem Ipsum', type: 'paragraph'}}
@@ -224,6 +233,15 @@ const DemoStatic: React.FC = () => {
                 />
             </div>
             <div className={'flex col-6'}>
+                {/* todo: here the "const typing" is enough to correctly validate the nested data */}
+                <StrictKeyPropLeafNode<'paragraph'>
+                    title={'Skill 04'}
+                    type={'paragraph'}
+                    value={{content: 'Skill 04 Lorem Ipsum', type: 'paragraph'}}
+                    storePath={'/3'}
+                />
+            </div>
+            <div className={'flex col-8 mxa'}>
                 <LeafNode<CustomLeafPropsSpec>
                     title={'Skill X'}
                     id={'only-used-to-check-no-deco'}
