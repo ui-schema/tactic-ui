@@ -5,7 +5,7 @@
 [![MIT license](https://img.shields.io/npm/l/@ui-controls/progress?style=flat-square)](https://github.com/ui-schema/tactic-ui/blob/main/LICENSE)
 ![Typed](https://flat.badgen.net/badge/icon/Typed?icon=typescript&label&labelColor=blue&color=555555)
 
-Render engine for AST & Widget systems - bring your own UI and data-spec - strongly typed.
+Render engine for AST & Widget systems - bring your own UI, data-spec + typing.
 
 > ⚗ Experimental architecture for UIS core replacement of `PluginStack`/`WidgetEngine`
 
@@ -64,7 +64,7 @@ This project is free software distributed under the **MIT License**.
 
 See: [LICENSE](LICENSE).
 
-© 2022 [bemit UG (haftungsbeschränkt)](https://bemit.codes)
+© 2023 [bemit UG (haftungsbeschränkt)](https://bemit.codes)
 
 ***
 
