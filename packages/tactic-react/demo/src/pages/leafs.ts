@@ -28,8 +28,6 @@ export interface DemoDecorator1ResultProps extends DemoDecoratorProps {
 //    - one base-props typing: based upon the first base and used for every `Leaf` to build the `props` automatically
 //    - this must contain the meta data, like the properties which are used for "matching"
 //    - for LeafEngines which provide data-bindings it should also contain e.g. `storeKeys` / `storePath` / `entityName`+`entityId`
-//    - for strict typing mapping inside of the `Leaf`, add one generic param, which can be used for equality check,
-//      the value must equal a `key` of `CustomLeafDataSpec`
 //
 //    What is a Leaf? https://en.wikipedia.org/wiki/Leaf
 //    Like a tree has many leafs and branches, the leaf is the visible thing at the end of a branch.
