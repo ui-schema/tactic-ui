@@ -7,3 +7,21 @@ export type GenericLeafsDataSpec = { [k: string]: {} }
 export type LeafsNodeSpec<LN extends GenericLeafNode<LDS[keyof LDS]>, LDS extends GenericLeafsDataSpec> = {
     [NT in keyof LDS]: LN
 }
+
+export interface LeafsRenderMapping<
+    TLeafsMapping extends {} = {},
+    TComponentsMapping extends {} = {}
+> {
+    // `components` are "static usable", which can implement any special logic
+    components: TComponentsMapping
+    // `leafs` are "generic usable" and should all work based on the general data-mapping
+    leafs: TLeafsMapping
+    // forbidden prop, to make safe for react
+    children?: never
+    // todo: add `events` and/or `hooks` for shared generic-logic;
+    //       e.g. CodeMirror getHighlight()-extension would be a `hook` and Content-UI `selectContent` would be an `event`;
+    //       the `leafs` data-mapping should be type-able "depends on `hook/event`" - again hard when in same mapping-interface;
+    //       it would make more sense to add that as some type-based plugin/extension
+
+}
+

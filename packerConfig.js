@@ -75,6 +75,7 @@ packer({
             if(execs.indexOf('doBuild') !== -1) {
                 const nodePackages = [
                     path.resolve(__dirname, 'packages', 'tactic-engine'),
+                    path.resolve(__dirname, 'packages', 'tactic-react'),
                     path.resolve(__dirname, 'packages', 'tactic-vanilla'),
                 ]
 

@@ -1,6 +1,6 @@
 {
     "name": "@tactic-ui/engine",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "",
     "homepage": "",
     "author": "Michael Becker <michael@bemit.codes>",
@@ -19,7 +19,6 @@
     "exports": {
         ".": "./build/index.js",
         "./Deco": "./build/Deco/index.js",
-        "./Engine": "./build/Engine/index.js",
         "./Leaf": "./build/Leaf/index.js"
     },
     "scripts": {
