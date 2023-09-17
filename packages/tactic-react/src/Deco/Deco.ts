@@ -20,11 +20,9 @@ export class ReactDeco<PG extends {}, PG0 extends {} = PG, PIN extends {} = {}> 
         return this
     }
 
-    public start() {
-        const decorators = [...this.decorators]
-        return function nextPlugin() {
-            return decorators.shift()
-        }
+    public next = (currentIndex: number) => {
+        // note: it is important to use an arrow function here, this way it doesn't need extra `bind` calls
+        return this.decorators[currentIndex]
     }
 }
 
@@ -41,9 +39,9 @@ export type DecoratorProps<P extends {}, TDeco extends ReactDeco<{}, {}>> =
  */
 export type ReactBaseDecorator<P1 extends DecoratorPropsNext> = <P extends P1>(p: P) => React.ReactElement | null
 
-export type DecoratorNextFn<P = {}> = <P2 extends P>() => ReactBaseDecorator<DecoratorPropsNext & P2>
+export type DecoratorNextFn<P = {}> = <P2 extends P>(currentIndex: number) => ReactBaseDecorator<DecoratorPropsNext & P2>
 
 export interface DecoratorPropsNext {
+    decoIndex: number
     next: DecoratorNextFn
 }
-

@@ -37,7 +37,7 @@ const {
 
 // 👉 5.2. Create a custom LeafNode which maps the properties, decorators and handles the rendering
 
-type LeafNodeInjected = 'next' | keyof CustomLeafsEngine<any, any, any, any>
+type LeafNodeInjected = 'decoIndex' | 'next' | keyof CustomLeafsEngine<any, any, any, any>
 
 function LeafNode<
     TLeafsDataMapping extends GenericLeafsDataSpec,
@@ -55,21 +55,17 @@ function LeafNode<
         throw new Error('This LeafNode requires decorators, maybe missed `deco` at the `LeafsProvider`?')
     }
 
-    const started = React.useRef<DecoratorNextFn<{ [k in LeafNodeInjected]: any }> | null>(null)
-
-    started.current = deco.start()
-    const next = React.useCallback(() => (started.current as NonNullable<typeof started.current>)(), [])
-
     // `Next` can not be typed in any way I've found (by inferring),
     // as the next decorator isn't yet known, only when wiring up the Deco,
     // thus here no error will be shown, except the safeguard that "all LeafNode injected are somehow passed down".
-    const Next = next()
+    const Next = deco.next(0)
     return <Next
         {...props}
         deco={deco}
         render={render}
-        next={next}
+        next={deco.next}
         settings={settings}
+        decoIndex={0}
     />
 }
 
@@ -98,10 +94,11 @@ const StrictKeyPropLeafNode = LeafNode as
 
 // some very simple decorator, which makes an `id` prop from the `title` prop
 function DemoDecorator<P extends DecoratorPropsNext>(p: P & DemoDecoratorProps): React.ReactElement<P & DemoDecorator1ResultProps> | null {
-    const Next = p.next()
+    const Next = p.next(p.decoIndex + 1)
     return <Next
         {...p}
         id={p.title.toLowerCase().replace(/[ .-]/g, '_')}
+        decoIndex={p.decoIndex + 1}
     />
 }
 
@@ -139,11 +136,12 @@ function DemoRenderer<P extends DecoratorPropsNext>(
     </div>
 }
 
-function DebugDecorator<P extends { next: DecoratorNextFn<{ debug: true }> }>(p: P & { id: string }): React.ReactElement<P & { debug: true }> {
-    const Next = p.next()
+function DebugDecorator<P extends { decoIndex: number, next: DecoratorNextFn<{ debug: true }> }>(p: P & { id: string }): React.ReactElement<P & { debug: true }> {
+    const Next = p.next(p.decoIndex + 1)
     console.log('DebugDecorator', p.id, Next)
     return <Next
         {...p}
+        decoIndex={p.decoIndex + 1}
         // this prop is required - of course it's possible to manually type the `next` stricter - just not by inferring, and it won't be validated in a higher level
         debug
     />
