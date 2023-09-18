@@ -1,6 +1,6 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
-import { PageDemoDecoratorBasic } from './pages/PageDemoDecoratorBasic'
+import { PageDemoDecoratorBasic } from './pages/PageDemoDecoratorBasic.js'
 
 export const App = () =>
     <BrowserRouter>

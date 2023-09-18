@@ -1,6 +1,6 @@
 {
     "name": "@tactic-ui/engine",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "",
     "homepage": "",
     "author": "Michael Becker <michael@bemit.codes>",
@@ -14,15 +14,19 @@
     "bugs": {
         "url": "https://github.com/ui-schema/tactic-ui/issues"
     },
-    "module": "build/index.js",
     "type": "module",
     "exports": {
-        ".": "./build/index.js",
-        "./Deco": "./build/Deco/index.js",
-        "./Leaf": "./build/Leaf/index.js"
+        "./Deco": {
+            "import": "./build/Deco/index.js",
+            "types": "./src/Deco/index.ts"
+        },
+        "./Leaf": {
+            "import": "./build/Leaf/index.js",
+            "types": "./src/Leaf/index.ts"
+        }
     },
     "scripts": {
-        "dtsgen": "tsc -d --emitDeclarationOnly --pretty && merge-dirs build/dts build && rm -rf build/dts && rm -rf build/**/*.test.* build/**/*.mock.*"
+        "dtsgen": "tsc -d --emitDeclarationOnly --pretty && merge-dirs build/dts/src build && rm -rf build/dts && rm -rf build/**/*.test.* build/**/*.mock.*"
     },
     "publishConfig": {
         "access": "public"

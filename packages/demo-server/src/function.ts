@@ -30,8 +30,6 @@ app.use(function corsMiddleware(_req: express.Request, res: express.Response, ne
         'X-Trace-Id',
         'X-Lb-Id',
         'X-Performance',
-        'X-Rate-Left-10S',
-        'X-Rate-Left-5M',
     ].join(', '))
 
     next()
@@ -43,7 +41,7 @@ app.use(function profilerMiddleware(req: express.Request & RequestCustomPayload,
     const traceId: string = req.header('X-Trace-Id') || req.header('X-Request-Id') || nanoTrace()
     req.trace = traceId as string
     onHeaders(res, function() {
-        if (traceId) {
+        if(traceId) {
             res.setHeader('X-Trace-Id', traceId)
         }
         res.removeHeader('X-Powered-By')

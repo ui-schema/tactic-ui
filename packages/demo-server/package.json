@@ -24,6 +24,7 @@
         "@types/on-headers": "^2.1.30",
         "on-headers": "^1.0.2",
         "liquidjs": "^9.36.0",
+        "@tactic-ui/react": "~0.0.1",
         "@tactic-ui/engine": "~0.0.1",
         "@tactic-ui/vanilla": "~0.0.1",
         "@babel/runtime": "^7.14.6",
@@ -48,7 +49,6 @@
         "ts-jest": "^27.0.5"
     },
     "scripts": {
-        "tasks": "gulp --tasks",
         "start": "mkdirp build && echo // > build/server.js && concurrently --kill-others \"npm run babel -- -w\" \"cross-env NODE_ENV=development nodemon build/server.js\"",
         "predev": "npm run clean && mkdirp build",
         "dev": "cross-env NODE_ENV=development concurrently --kill-others \"npm:watch-babel\" \"npm:watch-server\"",
@@ -60,7 +60,7 @@
         "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest",
         "tsc": "tsc --project tsconfig.json",
         "tdd": "cross-env NODE_ENV=development npm test -- --watchAll --watchman --coverage=false",
-        "babel": "cross-env NODE_ENV=node babel src -d build --extensions \".ts,.js\" --copy-files",
+        "babel": "cross-env NODE_ENV=node babel src -d build --extensions \".ts,.js,.tsx,.jsx\" --copy-files --root-mode upward",
         "clean": "rimraf build"
     },
     "nodemonConfig": {
