@@ -74,27 +74,55 @@ packer({
         } else {
             if(execs.indexOf('doBuild') !== -1) {
                 const nodePackages = [
-                    path.resolve(__dirname, 'packages', 'tactic-engine'),
-                    path.resolve(__dirname, 'packages', 'tactic-react'),
-                    path.resolve(__dirname, 'packages', 'tactic-vanilla'),
+                    // todo: improve pkg config availability here, when staying with lerna
+                    // [path, esmOnly]
+                    [path.resolve(__dirname, 'packages', 'tactic-engine'), true],
+                    [path.resolve(__dirname, 'packages', 'tactic-react'), false],
+                    [path.resolve(__dirname, 'packages', 'tactic-vanilla'), true],
                 ]
 
-                const saver = nodePackages.map((pkg) => {
+                const saver = nodePackages.map(([pkg, esmOnly]) => {
                     return new Promise(((resolve, reject) => {
-                        console.log(' rewrite package.json of ' + path.dirname(pkg))
+                        console.log(' rewrite package.json of ' + pkg)
                         const packageFile = JSON.parse(fs.readFileSync(path.join(pkg, 'package.json')).toString())
                         // todo: for backends: here check all `devPackages` etc. an replace local-packages with `file:` references,
                         //       then copy the `build` of that package to e.g. `_modules` in the backend `build`
                         if(packageFile.exports) {
-                            packageFile.exports = Object.keys(packageFile.exports).reduce((exp, pkgName) => ({
-                                ...exp,
-                                [pkgName]:
-                                    packageFile.exports[pkgName].startsWith('./build/') ?
-                                        '.' + packageFile.exports[pkgName].slice('./build'.length) :
-                                        packageFile.exports[pkgName].startsWith('./src/') ?
-                                            '.' + packageFile.exports[pkgName].slice('./src'.length) :
-                                            packageFile.exports[pkgName],
-                            }), packageFile.exports)
+                            packageFile.exports = Object.keys(packageFile.exports).reduce((exp, pkgName) => {
+                                let pkgExportsFinal
+                                const pkgExports = packageFile.exports[pkgName]
+                                const changeFolder = (maybePrefixedFolder) =>
+                                    maybePrefixedFolder.startsWith('./build/') ?
+                                        '.' + maybePrefixedFolder.slice('./build'.length) :
+                                        maybePrefixedFolder.startsWith('./src/') ?
+                                            '.' + maybePrefixedFolder.slice('./src'.length) :
+                                            maybePrefixedFolder
+                                if(typeof pkgExports === 'string') {
+                                    pkgExportsFinal = changeFolder(pkgExports)
+                                } else if(typeof pkgExports === 'object') {
+                                    pkgExportsFinal = Object.keys(pkgExports).reduce((pkgExportsNext, pkgExport) => {
+                                        let pkgExportNext = changeFolder(pkgExports[pkgExport])
+                                        if(pkgExport === 'import' && !esmOnly) {
+                                            if(!pkgExport['require']) {
+                                                pkgExportsNext['require'] = pkgExportNext
+                                            }
+                                            pkgExportNext = './esm' + pkgExportNext.slice(1)
+                                        }
+                                        return {
+                                            ...pkgExportsNext,
+                                            [pkgExport]:
+                                                pkgExportNext.endsWith('.ts') && !pkgExportNext.endsWith('.d.ts') ?
+                                                    pkgExportNext.slice(0, -3) + '.d.ts' : pkgExportNext,
+                                        }
+                                    }, {})
+                                } else {
+                                    throw new Error(`package exports could not be generated for ${pkgName}`)
+                                }
+                                return {
+                                    ...exp,
+                                    [pkgName]: pkgExportsFinal,
+                                }
+                            }, packageFile.exports)
                         }
                         if(packageFile.module && packageFile.module.startsWith('build/')) {
                             packageFile.module = packageFile.module.slice('build/'.length)

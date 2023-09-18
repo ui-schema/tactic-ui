@@ -4,7 +4,7 @@
         "target": "es2019",
         "jsx": "preserve",
         "removeComments": false,
-        "moduleResolution": "node",
+        "moduleResolution": "NodeNext",
         "forceConsistentCasingInFileNames": true,
         "strict": true,
         "noEmit": false,

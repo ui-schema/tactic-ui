@@ -1,6 +1,6 @@
 {
     "name": "@tactic-ui/react",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "",
     "homepage": "",
     "author": "Michael Becker <michael@bemit.codes>",
@@ -14,10 +14,23 @@
     "bugs": {
         "url": "https://github.com/ui-schema/tactic-ui/issues"
     },
-    "main": "index.js",
-    "module": "esm/index.js",
     "scripts": {
         "dtsgen": "tsc -d --emitDeclarationOnly --pretty && merge-dirs build/dts/tactic-react/src build && rm -rf build/dts && rm -rf build/**/*.test.* build/**/*.mock.*"
+    },
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": "./src/index.js",
+            "types": "./src/index.ts"
+        },
+        "./Deco": {
+            "import": "./src/Deco/index.js",
+            "types": "./src/Deco/index.ts"
+        },
+        "./LeafsEngine": {
+            "import": "./src/LeafsEngine/index.js",
+            "types": "./src/LeafsEngine/index.ts"
+        }
     },
     "dependencies": {
         "@tactic-ui/engine": "~0.0.2"

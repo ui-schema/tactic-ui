@@ -1,1 +1,1 @@
-export * from './Deco'
+export * from './Deco.js'
