@@ -1,30 +1,29 @@
 import type { Config } from '@jest/types'
 
-const packages: string[] = [
-    'tactic-react',
-    'tactic-engine',
-    'tactic-vanilla',
+const packages: [pkg: string, pkgDir?: string][] = [
+    ['@tactic-ui/react', 'tactic-react'],
+    ['@tactic-ui/engine', 'tactic-engine'],
+    ['@tactic-ui/vanilla', 'tactic-vanilla'],
 ]
 
 const testMatchesLint: string[] = []
 
-packages.forEach(pkg => {
+packages.forEach(([pkg, pkgDir]) => {
     testMatchesLint.push(...[
-        '<rootDir>/' + pkg + '/src/**/*.(js|ts|tsx)',
-        //'<rootDir>/' + pkg + '/tests/**/*.(test|spec|d).(js|ts|tsx)',
+        '<rootDir>/' + (pkgDir || pkg) + '/src/**/*.(js|ts|tsx)',
     ])
 })
 const base: Partial<Config.InitialOptions> = {
     transformIgnorePatterns: [
-        'node_modules/?!(@ui-controls)',
+        'node_modules/?!(@tactic-ui)',
     ],
-    transform: {
-        '^.+\\.ts$': 'ts-jest',
-        '^.+\\.tsx$': 'ts-jest',
-    },
+    extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],
     moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1',
-        '^@ui-controls/progress(.*)$': '<rootDir>/ctrls-progress/src$1',
+        ...packages.reduce<{ [k: string]: string }>((moduleNameMapper, [pkg, pkgDir]) => ({
+            ...moduleNameMapper,
+            [`^${pkg}(.*)$`]: `<rootDir>/${pkgDir || pkg}/src$1`,
+        }), {}),
     },
     moduleFileExtensions: [
         'ts',
@@ -42,13 +41,19 @@ const base: Partial<Config.InitialOptions> = {
 const config: Config.InitialOptions = {
     ...base,
     projects: [
-        ...packages.map(pkg => ({
+        ...packages.map(([pkg, pkgDir]) => ({
             displayName: 'test-' + pkg,
             ...base,
-            moduleDirectories: ['node_modules', '<rootDir>/' + pkg + '/node_modules'],
+            transform: {
+                '^.+\\.(jsx|ts|tsx)$': ['babel-jest', {rootMode: 'upward'}],
+            } as any,
+            moduleDirectories: [
+                'node_modules',
+                '<rootDir>/' + (pkgDir || pkg) + '/node_modules',
+            ],
             testMatch: [
-                '<rootDir>/' + pkg + '/src/**/*.(test|spec).(js|ts|tsx)',
-                '<rootDir>/' + pkg + '/tests/**/*.(test|spec).(js|ts|tsx)',
+                '<rootDir>/' + (pkgDir || pkg) + '/src/**/*.(test|spec).(js|ts|tsx)',
+                '<rootDir>/' + (pkgDir || pkg) + '/tests/**/*.(test|spec).(js|ts|tsx)',
             ],
         })),
         {
