@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "module": "esnext",
         "target": "es2019",
+        "module": "NodeNext",
         "jsx": "preserve",
         "removeComments": false,
         "moduleResolution": "NodeNext",

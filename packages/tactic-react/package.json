@@ -15,7 +15,7 @@
         "url": "https://github.com/ui-schema/tactic-ui/issues"
     },
     "scripts": {
-        "dtsgen": "tsc -d --emitDeclarationOnly --pretty && merge-dirs build/dts/tactic-react/src build && rm -rf build/dts && rm -rf build/**/*.test.* build/**/*.mock.*"
+        "dtsgen": "tsc -d --emitDeclarationOnly --pretty && merge-dirs build/dts/src build && rm -rf build/dts && rm -rf build/**/*.test.* build/**/*.mock.*"
     },
     "type": "module",
     "exports": {

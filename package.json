@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "",
     "private": true,
-    "main": "index.js",
+    "type": "module",
     "scripts": {
         "start": "npm run clean-dist && npm run serve",
         "docs": "npm run serve -- docs",
