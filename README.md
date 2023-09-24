@@ -13,6 +13,8 @@ Render engine for AST & Widget systems - bring your own UI, data-spec + typing.
 - ⚗ @tactic-ui/engine [![npm (scoped)](https://img.shields.io/npm/v/@tactic-ui/engine?style=flat-square)](https://www.npmjs.com/package/@tactic-ui/engine)
 - 🚧 ~~@tactic-ui/vanilla~~ [![npm (scoped)](https://img.shields.io/npm/v/@tactic-ui/vanilla?style=flat-square)](https://www.npmjs.com/package/@tactic-ui/vanilla)
 
+> strict ESM packages, e.g. supports server-side-rendering in `"type": "module"`, read more about [ESM only](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
+
 ## ReactJS
 
 ```shell
@@ -43,8 +45,6 @@ npm i @tactic-ui/vanilla
 ~~Provides the `Deco` implementation~~, otherwise contains only the basic typings for leafs and mappings.
 
 > not needed to install additionally, this module is included and re-exported from `@tactic-ui/react`
-
-> ⚠️⚠️ [ESM only package](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c) (atm., maybe forever)
 
 ```shell
 npm i -S @tactic-ui/engine

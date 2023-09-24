@@ -1,7 +1,10 @@
-const path = require('path');
-const {packer, webpack} = require('lerna-packer');
-const {makeModulePackageJson, copyRootPackageJson, transformForEsModule} = require('lerna-packer/packer/modulePackages');
-const fs = require('fs');
+import path, {dirname} from 'path'
+import {packer, webpack} from 'lerna-packer'
+import {makeModulePackageJson, copyRootPackageJson, transformForEsModule} from 'lerna-packer/packer/modulePackages.js'
+import fs from 'fs'
+import {fileURLToPath} from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 packer({
     apps: {
@@ -26,6 +29,11 @@ packer({
     packages: {
         tacticReact: {
             name: '@tactic-ui/react',
+            doServeWatch: true,
+            esmOnly: true,
+            babelTargets: [
+                {distSuffix: '', args: ['--no-comments', '--extensions', '.ts', '--extensions', '.tsx', '--extensions', '.js', '--ignore', '**/*.d.ts']},
+            ],
             root: path.resolve(__dirname, 'packages', 'tactic-react'),
             entry: path.resolve(__dirname, 'packages', 'tactic-react/src/'),
         },
@@ -77,7 +85,7 @@ packer({
                     // todo: improve pkg config availability here, when staying with lerna
                     // [path, esmOnly]
                     [path.resolve(__dirname, 'packages', 'tactic-engine'), true],
-                    [path.resolve(__dirname, 'packages', 'tactic-react'), false],
+                    [path.resolve(__dirname, 'packages', 'tactic-react'), true],
                     [path.resolve(__dirname, 'packages', 'tactic-vanilla'), true],
                 ]
 
@@ -102,17 +110,19 @@ packer({
                                 } else if(typeof pkgExports === 'object') {
                                     pkgExportsFinal = Object.keys(pkgExports).reduce((pkgExportsNext, pkgExport) => {
                                         let pkgExportNext = changeFolder(pkgExports[pkgExport])
+                                        let cjs = undefined
                                         if(pkgExport === 'import' && !esmOnly) {
                                             if(!pkgExport['require']) {
-                                                pkgExportsNext['require'] = pkgExportNext
+                                                cjs = {'require': pkgExportNext}
                                             }
-                                            pkgExportNext = './esm' + pkgExportNext.slice(1)
+                                            pkgExportNext = pkgExportNext.startsWith('./esm/') ? pkgExportNext : './esm' + pkgExportNext.slice(1)
                                         }
                                         return {
                                             ...pkgExportsNext,
                                             [pkgExport]:
                                                 pkgExportNext.endsWith('.ts') && !pkgExportNext.endsWith('.d.ts') ?
                                                     pkgExportNext.slice(0, -3) + '.d.ts' : pkgExportNext,
+                                            ...cjs || {},
                                         }
                                     }, {})
                                 } else {

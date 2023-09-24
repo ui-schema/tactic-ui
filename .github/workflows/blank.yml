@@ -49,7 +49,7 @@ jobs:
 
             -   name: Run tests
                 run: |
-                    npm test
+                    npm test -- --verbose
 
             -   name: Build
                 run: |
