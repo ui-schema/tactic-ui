@@ -20,7 +20,7 @@ export interface LeafsEngine<
     TDeco extends ReactDeco<{}, {}, {}>,
     TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponents>,
 > {
-    render: TRender
+    renderMap: TRender
     deco?: TDeco
 }
 
@@ -58,12 +58,12 @@ export function defineLeafEngine<
     >(
         {
             children,
-            deco, render,
+            deco, renderMap,
         }: React.PropsWithChildren<LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2>>,
     ) {
         const ctx = React.useMemo((): LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2> => ({
-            deco: deco, render: render,
-        }), [deco, render])
+            deco: deco, renderMap: renderMap,
+        }), [deco, renderMap])
 
         const LeafsContextProvider = (context as unknown as React.Context<LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2>>).Provider
         return <LeafsContextProvider value={ctx}>{children}</LeafsContextProvider>

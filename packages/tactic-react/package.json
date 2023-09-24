@@ -19,10 +19,6 @@
     },
     "type": "module",
     "exports": {
-        ".": {
-            "import": "./src/index.js",
-            "types": "./src/index.ts"
-        },
         "./Deco": {
             "import": "./src/Deco/index.js",
             "types": "./src/Deco/index.ts"
