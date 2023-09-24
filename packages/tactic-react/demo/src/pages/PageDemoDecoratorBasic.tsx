@@ -11,7 +11,9 @@ import { CustomLeafDataSpec, CustomLeafDataType, CustomLeafPropsSpec, CustomLeaf
 // 👉 5.1. Create a custom render engine out of the parts
 
 type CustomLeafsNodeSpec = ReactLeafsNodeSpec<CustomLeafPropsSpec>
-type CustomComponents = {}
+type CustomComponents = {
+    Container?: React.ComponentType<React.PropsWithChildren<{}>>
+}
 type CustomLeafsRenderMapping<
     TLeafsMapping extends {} = {},
     TComponentsMapping extends {} = {},
@@ -21,7 +23,7 @@ type CustomLeafsRenderMapping<
 const context = createLeafContext<
     GenericLeafsDataSpec, CustomComponents,
     ReactDeco<{}, {}>,
-    CustomLeafsRenderMapping<ReactLeafsNodeSpec<GenericLeafsDataSpec>, CustomComponents>
+    LeafsRenderMapping<ReactLeafsNodeSpec<GenericLeafsDataSpec>, CustomComponents>
 >()
 
 const {
@@ -45,7 +47,7 @@ function LeafNode<
     TDeco extends ReactDeco<{}, {}> = ReactDeco<{}, {}>,
     TLeafData extends TLeafsDataMapping[keyof TLeafsDataMapping] = TLeafsDataMapping[keyof TLeafsDataMapping],
     TComponentsMapping extends {} = {},
-    TRender extends CustomLeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponentsMapping> = CustomLeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponentsMapping>,
+    TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponentsMapping> = LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponentsMapping>,
     // todo: TProps not only needs to support removing injected, but also allowing overriding those injected
     TProps extends DecoratorProps<NonNullable<TLeafData>, TDeco> = DecoratorProps<NonNullable<TLeafData>, TDeco>,
 >(
@@ -110,7 +112,7 @@ function DemoDecorator<P extends DecoratorPropsNext>(p: P & DemoDecoratorProps):
 
 type DemoRendererProps = {
     // todo: try to make the render typing a bit stricter without circular CustomLeafProps import dependencies
-    render: CustomLeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, {}>
+    render: CustomLeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, CustomComponents>
     type: string
     settings: SettingsContextType
 }
@@ -128,6 +130,7 @@ function DemoRenderer<P extends DecoratorPropsNext>(
 ): React.ReactElement<P> {
     // the last decorator must end the run - decorators afterwards are skipped silently
     const Leaf = render.leafs[p.type] as any
+
     return <div className={'mb2'}>
         {settings?.hideTitles ? null : <>
             <p className={'my0 body2'}>id: <code>{p.id}</code></p>
@@ -173,7 +176,7 @@ const deco = new ReactDeco<
 
 // 👉 8. Map the actual `Leaf` implementations
 
-const BreakThematic: React.FC<CustomLeafPropsWithValue<CustomLeafDataType<'breakThematic'>>> =
+const BreakThematic: React.ComponentType<CustomLeafPropsWithValue<CustomLeafDataType<'breakThematic'>>> =
     (props) => <hr title={props.storePath} style={{width: '100%'}}/>
 
 const leafs: CustomLeafsNodeSpec = {
@@ -182,9 +185,18 @@ const leafs: CustomLeafsNodeSpec = {
     breakThematic: BreakThematic,
 }
 
+/**
+ * An example component using `React.ComponentType`, which somehow makes problems externally
+ */
+const ContainerComponent: React.ComponentType<React.PropsWithChildren<{}>> = ({children}) => {
+    return <div className={'container container-md'}>{children}</div>
+}
+
 const render: CustomLeafsRenderMapping<CustomLeafsNodeSpec, CustomComponents> = {
     leafs: leafs,
-    components: {},
+    components: {
+        Container: ContainerComponent,
+    },
 }
 
 //
