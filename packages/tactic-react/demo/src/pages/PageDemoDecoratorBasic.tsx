@@ -1,7 +1,8 @@
 import { ReactDeco, DecoratorProps, DecoratorPropsNext, DecoratorNextFn, ReactBaseDecorator } from '@tactic-ui/react/Deco'
 import React from 'react'
 import { Typo } from '../components/Styles.js'
-import { createLeafContext, defineLeafEngine, GenericLeafsDataSpec, LeafsRenderMapping, ReactLeafsNodeSpec } from '@tactic-ui/react/LeafsEngine'
+import { createLeafContext, defineLeafEngine } from '@tactic-ui/react/LeafsContext'
+import { GenericLeafsDataSpec, LeafsRenderMapping, ReactLeafsNodeSpec } from '@tactic-ui/react/LeafsEngine'
 import { CustomLeafDataSpec, CustomLeafDataType, CustomLeafPropsSpec, CustomLeafPropsWithValue, DemoDecoratorProps, DemoDecorator1ResultProps } from './leafs.js'
 
 
@@ -18,7 +19,6 @@ type CustomLeafsRenderMapping<
     TLeafsMapping extends {} = {},
     TComponentsMapping extends {} = {},
 > = LeafsRenderMapping<TLeafsMapping, TComponentsMapping>
-
 
 const context = createLeafContext<
     GenericLeafsDataSpec, CustomComponents,
@@ -53,7 +53,7 @@ function LeafNode<
 >(
     props: Omit<TProps, LeafNodeInjected>, // remove the props injected by LeafNode
 ): React.JSX.Element | null {
-    const {deco, render} = useLeafs<TLeafsDataMapping, TComponentsMapping, TDeco, TRender>()
+    const {deco, renderMap} = useLeafs<TLeafsDataMapping, TComponentsMapping, TDeco, TRender>()
     if(!deco) {
         throw new Error('This LeafNode requires decorators, maybe missed `deco` at the `LeafsProvider`?')
     }
@@ -66,7 +66,7 @@ function LeafNode<
     return <Next
         {...props}
         deco={deco}
-        render={render}
+        renderMap={renderMap}
         next={deco.next}
         settings={settings}
         decoIndex={0}
@@ -112,14 +112,14 @@ function DemoDecorator<P extends DecoratorPropsNext>(p: P & DemoDecoratorProps):
 
 type DemoRendererProps = {
     // todo: try to make the render typing a bit stricter without circular CustomLeafProps import dependencies
-    render: CustomLeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, CustomComponents>
+    renderMap: CustomLeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, CustomComponents>
     type: string
     settings: SettingsContextType
 }
 
 function DemoRenderer<P extends DecoratorPropsNext>(
     {
-        render,
+        renderMap,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         next,
         // todo: shouldn't `settings` be passed down here? maybe that is the solution to check for compat at the end,
@@ -129,7 +129,7 @@ function DemoRenderer<P extends DecoratorPropsNext>(
     }: P & DemoDecoratorProps & { id: string } & DemoRendererProps,
 ): React.ReactElement<P> {
     // the last decorator must end the run - decorators afterwards are skipped silently
-    const Leaf = render.leafs[p.type] as any
+    const Leaf = renderMap.leafs[p.type] as any
 
     return <div className={'mb2'}>
         {settings?.hideTitles ? null : <>
@@ -162,7 +162,7 @@ const deco = new ReactDeco<
     CustomLeafDataType<string> &
     { settings: SettingsContextType } &
     {
-        render: CustomLeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, CustomComponents>
+        renderMap: CustomLeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, CustomComponents>
     }
 >()
     .use(DemoDecorator)
@@ -192,7 +192,7 @@ const ContainerComponent: React.ComponentType<React.PropsWithChildren<{}>> = ({c
     return <div className={'container container-md'}>{children}</div>
 }
 
-const render: CustomLeafsRenderMapping<CustomLeafsNodeSpec, CustomComponents> = {
+const renderMap: CustomLeafsRenderMapping<CustomLeafsNodeSpec, CustomComponents> = {
     leafs: leafs,
     components: {
         Container: ContainerComponent,
@@ -206,11 +206,11 @@ const render: CustomLeafsRenderMapping<CustomLeafsNodeSpec, CustomComponents> = 
 const DemoStatic: React.FC = () => {
     const [settings, setSettings] = React.useState<{ hideTitles?: boolean }>({hideTitles: false})
     return <div className={'flex flex-wrap'}>
-        {/* todo: the engine doesn't validate that decorators and render are compatible */}
+        {/* todo: the engine doesn't validate that decorators and renderMap are compatible */}
         <settingsContext.Provider value={settings}>
             <LeafsProvider<CustomLeafPropsSpec>
                 deco={deco}
-                render={render}
+                renderMap={renderMap}
             >
                 <div className={'col-12'}>
                     <button
@@ -300,7 +300,7 @@ const DemoAutomatic: React.FC = () => {
         <settingsContext.Provider value={settings}>
             <LeafsProvider<CustomLeafPropsSpec>
                 deco={deco}
-                render={render}
+                renderMap={renderMap}
                 // settings={settings}
             >
                 <button

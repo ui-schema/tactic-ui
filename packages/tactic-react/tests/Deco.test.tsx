@@ -9,11 +9,11 @@ describe('Deco', () => {
         function DemoRenderer<P extends DecoratorPropsNext>(
             {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                render, next,
+                renderMap, next,
                 ...p
-            }: P & { type: string } & { render: LeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, {}> },
+            }: P & { type: string } & { renderMap: LeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, {}> },
         ): React.ReactElement<P> {
-            const Leaf = render.leafs[p.type] as any
+            const Leaf = renderMap.leafs[p.type] as any
             return <div className={'demo-renderer'}>
                 <Leaf {...p}/>
             </div>
@@ -23,7 +23,7 @@ describe('Deco', () => {
             DecoratorPropsNext &
             { type: string } &
             {
-                render: LeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, {}>
+                renderMap: LeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, {}>
             }
         >()
             .use(DemoRenderer)
@@ -32,7 +32,7 @@ describe('Deco', () => {
 
         const {queryByText, container} = render(
             <Next
-                render={{leafs: {text: () => <div className={'leaf-text'}>text</div>}}}
+                renderMap={{leafs: {text: () => <div className={'leaf-text'}>text</div>}}}
                 type={'text'}
             />,
         )

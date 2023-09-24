@@ -1,28 +1,8 @@
-import { ReactDeco } from '@tactic-ui/react/Deco'
 import React from 'react'
+import { ReactDeco } from '@tactic-ui/react/Deco'
 import { LeafsRenderMapping, GenericLeafsDataSpec } from '@tactic-ui/engine/Leaf'
+import { ReactLeafsNodeSpec, LeafsEngine } from '@tactic-ui/react/LeafsEngine'
 
-/**
- * A wider `React.ComponentType`, as the remapping had a lot of issues when `React.ComponentType` was used internally, somehow not reproducible here or in others with React18.
- * But in ui-schema with the latest React 18 setup, `React.ComponentType` won't work without the `React.ComponentClass<P>`
- */
-export type ReactLeafDefaultNodeType<P = {}> =
-    React.ComponentClass<P> |
-    ((props: P, context?: any) => React.ReactNode)
-
-export type ReactLeafsNodeSpec<LDS extends GenericLeafsDataSpec> = {
-    [K in keyof LDS]: ReactLeafDefaultNodeType<NonNullable<LDS[K]>>
-}
-
-export interface LeafsEngine<
-    TLeafsDataMapping extends GenericLeafsDataSpec,
-    TComponents extends {},
-    TDeco extends ReactDeco<{}, {}, {}>,
-    TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponents>,
-> {
-    render: TRender
-    deco?: TDeco
-}
 
 export function createLeafContext<
     TLeafsDataMapping extends GenericLeafsDataSpec,
@@ -58,12 +38,12 @@ export function defineLeafEngine<
     >(
         {
             children,
-            deco, render,
+            deco, renderMap,
         }: React.PropsWithChildren<LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2>>,
     ) {
         const ctx = React.useMemo((): LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2> => ({
-            deco: deco, render: render,
-        }), [deco, render])
+            deco: deco, renderMap: renderMap,
+        }), [deco, renderMap])
 
         const LeafsContextProvider = (context as unknown as React.Context<LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2>>).Provider
         return <LeafsContextProvider value={ctx}>{children}</LeafsContextProvider>

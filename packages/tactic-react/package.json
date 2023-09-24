@@ -1,6 +1,6 @@
 {
     "name": "@tactic-ui/react",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "description": "",
     "homepage": "",
     "author": "Michael Becker <michael@bemit.codes>",
@@ -19,13 +19,13 @@
     },
     "type": "module",
     "exports": {
-        ".": {
-            "import": "./src/index.js",
-            "types": "./src/index.ts"
-        },
         "./Deco": {
             "import": "./src/Deco/index.js",
             "types": "./src/Deco/index.ts"
+        },
+        "./LeafsContext": {
+            "import": "./src/LeafsContext/index.js",
+            "types": "./src/LeafsContext/index.ts"
         },
         "./LeafsEngine": {
             "import": "./src/LeafsEngine/index.js",
