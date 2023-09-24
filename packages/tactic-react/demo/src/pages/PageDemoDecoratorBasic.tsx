@@ -1,7 +1,8 @@
 import { ReactDeco, DecoratorProps, DecoratorPropsNext, DecoratorNextFn, ReactBaseDecorator } from '@tactic-ui/react/Deco'
 import React from 'react'
 import { Typo } from '../components/Styles.js'
-import { createLeafContext, defineLeafEngine, GenericLeafsDataSpec, LeafsRenderMapping, ReactLeafsNodeSpec } from '@tactic-ui/react/LeafsEngine'
+import { createLeafContext, defineLeafEngine } from '@tactic-ui/react/LeafsContext'
+import { GenericLeafsDataSpec, LeafsRenderMapping, ReactLeafsNodeSpec } from '@tactic-ui/react/LeafsEngine'
 import { CustomLeafDataSpec, CustomLeafDataType, CustomLeafPropsSpec, CustomLeafPropsWithValue, DemoDecoratorProps, DemoDecorator1ResultProps } from './leafs.js'
 
 
@@ -18,7 +19,6 @@ type CustomLeafsRenderMapping<
     TLeafsMapping extends {} = {},
     TComponentsMapping extends {} = {},
 > = LeafsRenderMapping<TLeafsMapping, TComponentsMapping>
-
 
 const context = createLeafContext<
     GenericLeafsDataSpec, CustomComponents,
