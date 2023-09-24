@@ -1,7 +1,7 @@
-import { ReactDeco, DecoratorProps, DecoratorPropsNext, DecoratorNextFn } from '@tactic-ui/react/Deco'
+import { ReactDeco, DecoratorProps, DecoratorPropsNext, DecoratorNextFn, ReactBaseDecorator } from '@tactic-ui/react/Deco'
 import React from 'react'
 import { Typo } from '../components/Styles.js'
-import { defineLeafEngine, GenericLeafsDataSpec, LeafsEngine, LeafsRenderMapping, ReactLeafsNodeSpec } from '@tactic-ui/react/LeafsEngine'
+import { createLeafContext, defineLeafEngine, GenericLeafsDataSpec, LeafsRenderMapping, ReactLeafsNodeSpec } from '@tactic-ui/react/LeafsEngine'
 import { CustomLeafDataSpec, CustomLeafDataType, CustomLeafPropsSpec, CustomLeafPropsWithValue, DemoDecoratorProps, DemoDecorator1ResultProps } from './leafs.js'
 
 
@@ -14,30 +14,31 @@ type CustomLeafsNodeSpec = ReactLeafsNodeSpec<CustomLeafPropsSpec>
 type CustomComponents = {}
 type CustomLeafsRenderMapping<
     TLeafsMapping extends {} = {},
-    TComponentsMapping extends {} = {}
+    TComponentsMapping extends {} = {},
 > = LeafsRenderMapping<TLeafsMapping, TComponentsMapping>
-type CustomLeafsEngine<
-    TLeafsDataMapping extends GenericLeafsDataSpec,
-    TComponents extends {},
-    TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponents>,
-    TDeco extends ReactDeco<{}, {}, {}>
-> = LeafsEngine<TLeafsDataMapping, TComponents, TRender, TDeco> & {
-    settings: { hideTitles?: boolean }
-}
+
+
+const context = createLeafContext<
+    GenericLeafsDataSpec, CustomComponents,
+    ReactDeco<{}, {}>,
+    CustomLeafsRenderMapping<ReactLeafsNodeSpec<GenericLeafsDataSpec>, CustomComponents>
+>()
 
 const {
     LeafsProvider, useLeafs,
-    // context,
-} = defineLeafEngine<
-    GenericLeafsDataSpec, CustomComponents,
-    CustomLeafsRenderMapping<ReactLeafsNodeSpec<GenericLeafsDataSpec>, CustomComponents>,
-    ReactDeco<{}, {}>,
-    CustomLeafsEngine<GenericLeafsDataSpec, CustomComponents, CustomLeafsRenderMapping<ReactLeafsNodeSpec<GenericLeafsDataSpec>, CustomComponents>, ReactDeco<{}, {}>>
->()
+} = defineLeafEngine(context)
+
+// a custom context, used as example for props injection in the `LeafNode`
+
+export interface SettingsContextType {
+    hideTitles?: boolean
+}
+
+const settingsContext = React.createContext<SettingsContextType>({hideTitles: false})
 
 // 👉 5.2. Create a custom LeafNode which maps the properties, decorators and handles the rendering
 
-type LeafNodeInjected = 'decoIndex' | 'next' | keyof CustomLeafsEngine<any, any, any, any>
+type LeafNodeInjected = 'decoIndex' | 'next' | 'settings' | keyof ReturnType<typeof useLeafs>
 
 function LeafNode<
     TLeafsDataMapping extends GenericLeafsDataSpec,
@@ -50,15 +51,16 @@ function LeafNode<
 >(
     props: Omit<TProps, LeafNodeInjected>, // remove the props injected by LeafNode
 ): React.JSX.Element | null {
-    const {deco, render, settings} = useLeafs<TLeafsDataMapping, TComponentsMapping, TRender, TDeco>()
+    const {deco, render} = useLeafs<TLeafsDataMapping, TComponentsMapping, TDeco, TRender>()
     if(!deco) {
         throw new Error('This LeafNode requires decorators, maybe missed `deco` at the `LeafsProvider`?')
     }
+    const settings = React.useContext(settingsContext)
 
     // `Next` can not be typed in any way I've found (by inferring),
     // as the next decorator isn't yet known, only when wiring up the Deco,
     // thus here no error will be shown, except the safeguard that "all LeafNode injected are somehow passed down".
-    const Next = deco.next(0)
+    const Next = deco.next(0) as ReactBaseDecorator<{ [k in LeafNodeInjected]: any }>
     return <Next
         {...props}
         deco={deco}
@@ -109,8 +111,8 @@ function DemoDecorator<P extends DecoratorPropsNext>(p: P & DemoDecoratorProps):
 type DemoRendererProps = {
     // todo: try to make the render typing a bit stricter without circular CustomLeafProps import dependencies
     render: CustomLeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, {}>
-    settings: { hideTitles?: boolean }
     type: string
+    settings: SettingsContextType
 }
 
 function DemoRenderer<P extends DecoratorPropsNext>(
@@ -155,9 +157,9 @@ const deco = new ReactDeco<
     DecoratorPropsNext &
     DemoDecoratorProps &
     CustomLeafDataType<string> &
+    { settings: SettingsContextType } &
     {
         render: CustomLeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, CustomComponents>
-        settings: { hideTitles?: boolean }
     }
 >()
     .use(DemoDecorator)
@@ -193,62 +195,63 @@ const DemoStatic: React.FC = () => {
     const [settings, setSettings] = React.useState<{ hideTitles?: boolean }>({hideTitles: false})
     return <div className={'flex flex-wrap'}>
         {/* todo: the engine doesn't validate that decorators and render are compatible */}
-        <LeafsProvider<CustomLeafPropsSpec>
-            deco={deco}
-            render={render}
-            settings={settings}
-        >
-            <div className={'col-12'}>
-                <button
-                    onClick={() => setSettings(s => ({...s, hideTitles: !s.hideTitles}))}
-                    className={'btn mb2'}
-                >toggle titles
-                </button>
-            </div>
-            <div className={'flex col-6'}>
-                <LeafNode<CustomLeafPropsSpec, typeof deco, CustomLeafPropsSpec['paragraph']>
-                    title={'Skill 01'}
-                    type={'paragraph'}
-                    value={{content: 'Skill 01 Lorem Ipsum', type: 'paragraph'}}
-                    storePath={'/0'}
-                />
-            </div>
-            <div className={'flex col-6'}>
-                <LeafNode<CustomLeafPropsSpec, typeof deco, CustomLeafPropsSpec['paragraph']>
-                    title={'Skill 02'}
-                    type={'paragraph'}
-                    value={{content: 'Skill 02 Lorem Ipsum', type: 'paragraph'}}
-                    storePath={'/1'}
-                />
-            </div>
-            {/* todo: without the explicit props, a mismatched nested-type and root-type don't cause an error */}
-            <div className={'flex col-6'}>
-                <StrictLeafNode<CustomLeafPropsSpec['paragraph']>
-                    title={'Skill 03'}
-                    type={'paragraph'}
-                    value={{content: 'Skill 03 Lorem Ipsum', type: 'paragraph'}}
-                    storePath={'/2'}
-                />
-            </div>
-            <div className={'flex col-6'}>
-                {/* todo: here the "const typing" is enough to correctly validate the nested data */}
-                <StrictKeyPropLeafNode<'paragraph'>
-                    title={'Skill 04'}
-                    type={'paragraph'}
-                    value={{content: 'Skill 04 Lorem Ipsum', type: 'paragraph'}}
-                    storePath={'/3'}
-                />
-            </div>
-            <div className={'flex col-8 mxa'}>
-                <LeafNode<CustomLeafPropsSpec>
-                    title={'Skill X'}
-                    id={'only-used-to-check-no-deco'}
-                    type={'paragraph'}
-                    value={{content: 'Skill X Lorem Ipsum', type: 'paragraph'}}
-                    storePath={'/x'}
-                />
-            </div>
-        </LeafsProvider>
+        <settingsContext.Provider value={settings}>
+            <LeafsProvider<CustomLeafPropsSpec>
+                deco={deco}
+                render={render}
+            >
+                <div className={'col-12'}>
+                    <button
+                        onClick={() => setSettings(s => ({...s, hideTitles: !s.hideTitles}))}
+                        className={'btn mb2'}
+                    >toggle titles
+                    </button>
+                </div>
+                <div className={'flex col-6'}>
+                    <LeafNode<CustomLeafPropsSpec, typeof deco, CustomLeafPropsSpec['paragraph']>
+                        title={'Skill 01'}
+                        type={'paragraph'}
+                        value={{content: 'Skill 01 Lorem Ipsum', type: 'paragraph'}}
+                        storePath={'/0'}
+                    />
+                </div>
+                <div className={'flex col-6'}>
+                    <LeafNode<CustomLeafPropsSpec, typeof deco, CustomLeafPropsSpec['paragraph']>
+                        title={'Skill 02'}
+                        type={'paragraph'}
+                        value={{content: 'Skill 02 Lorem Ipsum', type: 'paragraph'}}
+                        storePath={'/1'}
+                    />
+                </div>
+                {/* todo: without the explicit props, a mismatched nested-type and root-type don't cause an error */}
+                <div className={'flex col-6'}>
+                    <StrictLeafNode<CustomLeafPropsSpec['paragraph']>
+                        title={'Skill 03'}
+                        type={'paragraph'}
+                        value={{content: 'Skill 03 Lorem Ipsum', type: 'paragraph'}}
+                        storePath={'/2'}
+                    />
+                </div>
+                <div className={'flex col-6'}>
+                    {/* todo: here the "const typing" is enough to correctly validate the nested data */}
+                    <StrictKeyPropLeafNode<'paragraph'>
+                        title={'Skill 04'}
+                        type={'paragraph'}
+                        value={{content: 'Skill 04 Lorem Ipsum', type: 'paragraph'}}
+                        storePath={'/3'}
+                    />
+                </div>
+                <div className={'flex col-8 mxa'}>
+                    <LeafNode<CustomLeafPropsSpec>
+                        title={'Skill X'}
+                        id={'only-used-to-check-no-deco'}
+                        type={'paragraph'}
+                        value={{content: 'Skill X Lorem Ipsum', type: 'paragraph'}}
+                        storePath={'/x'}
+                    />
+                </div>
+            </LeafsProvider>
+        </settingsContext.Provider>
     </div>
 }
 
@@ -273,37 +276,41 @@ const leafData: CustomLeafDataSpec[keyof CustomLeafDataSpec][] = [
         content: 'Ac felis donec et odio pellentesque diam.',
     },
 ]
+
 const DemoAutomatic: React.FC = () => {
     // todo: the engine doesn't validate that decorators and render are compatible,
-    //       and as the `deco` mustn't know about the Leafs in regard to circles,
+    //       and as the `deco` mustn't know about the Leafs in regard to circular dependencies,
     //       i think it is impossible to further guarantee deco+leafs are compatible
     //       - except maybe with a check using further generics on `LeafsProvider`
     const [settings, setSettings] = React.useState<{ hideTitles?: boolean }>({hideTitles: false})
+
     return <div className={'flex flex-column'}>
-        <LeafsProvider<CustomLeafPropsSpec>
-            deco={deco}
-            render={render}
-            settings={settings}
-        >
-            <button
-                onClick={() => setSettings(s => ({...s, hideTitles: !s.hideTitles}))}
-                className={'btn mb2 mra'}
-            >toggle titles
-            </button>
-            {leafData.map((ld, i) =>
-                <LeafNode<CustomLeafPropsSpec, typeof deco, CustomLeafPropsSpec[typeof ld.type]>
-                    key={i}
-                    // re-mapping data to props
-                    {...{
-                        // title is just some dummy for the decorators
-                        title: 'Type ' + ld.type + ' No ' + i,
-                        type: ld.type,
-                        storePath: '/' + i,
-                        value: ld,
-                        // the "remove props injected by decorators" is also needed here
-                    } as DecoratorProps<NonNullable<CustomLeafPropsSpec[typeof ld.type]>, typeof deco>}
-                />)}
-        </LeafsProvider>
+        <settingsContext.Provider value={settings}>
+            <LeafsProvider<CustomLeafPropsSpec>
+                deco={deco}
+                render={render}
+                // settings={settings}
+            >
+                <button
+                    onClick={() => setSettings(s => ({...s, hideTitles: !s.hideTitles}))}
+                    className={'btn mb2 mra'}
+                >toggle titles
+                </button>
+                {leafData.map((ld, i) =>
+                    <LeafNode<CustomLeafPropsSpec, typeof deco, CustomLeafPropsSpec[typeof ld.type]>
+                        key={i}
+                        // re-mapping data to props
+                        {...{
+                            // title is just some dummy for the decorators
+                            title: 'Type ' + ld.type + ' No ' + i,
+                            type: ld.type,
+                            storePath: '/' + i,
+                            value: ld,
+                            // the "remove props injected by decorators" is also needed here
+                        } as DecoratorProps<NonNullable<CustomLeafPropsSpec[typeof ld.type]>, typeof deco>}
+                    />)}
+            </LeafsProvider>
+        </settingsContext.Provider>
     </div>
 }
 

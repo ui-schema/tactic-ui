@@ -11,58 +11,59 @@ export type ReactLeafsNodeSpec<LDS extends GenericLeafsDataSpec> = {
 export interface LeafsEngine<
     TLeafsDataMapping extends GenericLeafsDataSpec,
     TComponents extends {},
+    TDeco extends ReactDeco<{}, {}, {}>,
     TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponents>,
-    TDeco extends ReactDeco<{}, {}, {}>
 > {
     render: TRender
     deco?: TDeco
 }
 
+export function createLeafContext<
+    TLeafsDataMapping extends GenericLeafsDataSpec,
+    TComponents extends {},
+    TDeco extends ReactDeco<{}, {}, {}>,
+    TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponents>,
+>(): React.Context<LeafsEngine<TLeafsDataMapping, TComponents, TDeco, TRender>> {
+    return React.createContext(undefined as any)
+}
+
 export function defineLeafEngine<
     TLeafsDataMapping extends GenericLeafsDataSpec,
     TComponents extends {},
-    TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponents>,
     TDeco extends ReactDeco<{}, {}, {}>,
-    TLeafsEngine extends LeafsEngine<TLeafsDataMapping, TComponents, TRender, TDeco> = LeafsEngine<TLeafsDataMapping, TComponents, TRender, TDeco>,
-    // todo: due to the duck-typing and multi extension, it seems `LeafsEngine` can only be defined here but not at provider/leafs usage
-    TLeafsExtra extends Omit<TLeafsEngine, keyof LeafsEngine<any, any, any, any>> = Omit<TLeafsEngine, keyof LeafsEngine<any, any, any, any>>
->(customContext?: React.Context<TLeafsEngine>) {
-    const context = customContext || React.createContext<TLeafsEngine>(undefined as any)
-
+    TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponents>,
+>(context: React.Context<LeafsEngine<TLeafsDataMapping, TComponents, TDeco, TRender>>) {
     const useLeafs = <
         TLeafsDataMapping2 extends TLeafsDataMapping = TLeafsDataMapping,
         TComponents2 extends TComponents = TComponents,
-        TRender2 extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping2>, TComponents2> = LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping2>, TComponents2>,
         TDeco2 extends TDeco = TDeco,
+        TRender2 extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping2>, TComponents2> = LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping2>, TComponents2>,
     >() => {
-        return React.useContext<LeafsEngine<TLeafsDataMapping2, TComponents2, TRender2, TDeco2> & TLeafsExtra>(
-            context as unknown as React.Context<LeafsEngine<TLeafsDataMapping2, TComponents2, TRender2, TDeco2> & TLeafsExtra>,
+        return React.useContext<LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2>>(
+            context as unknown as React.Context<LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2>>,
         )
     }
 
     function LeafsProvider<
         TLeafsDataMapping2 extends TLeafsDataMapping = TLeafsDataMapping,
         TComponents2 extends TComponents = TComponents,
+        TDeco2 extends TDeco = TDeco,
         TRender2 extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping2>, TComponents2> = LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping2>, TComponents2>,
-        TDeco2 extends TDeco = TDeco
     >(
         {
             children,
-            deco, render, ...rest
-        }: React.PropsWithChildren<LeafsEngine<TLeafsDataMapping2, TComponents2, TRender2, TDeco2> & TLeafsExtra>,
+            deco, render,
+        }: React.PropsWithChildren<LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2>>,
     ) {
-        const ctx = React.useMemo(() => ({
+        const ctx = React.useMemo((): LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2> => ({
             deco: deco, render: render,
-            ...rest,
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-        } as LeafsEngine<TLeafsDataMapping2, TComponents2, TRender2, TDeco2> & TLeafsExtra), [deco, render, ...Object.keys(rest), ...Object.values(rest)])
+        }), [deco, render])
 
-        const LeafsContextProvider = (context as unknown as React.Context<LeafsEngine<TLeafsDataMapping2, TComponents2, TRender2, TDeco2> & TLeafsExtra>).Provider
+        const LeafsContextProvider = (context as unknown as React.Context<LeafsEngine<TLeafsDataMapping2, TComponents2, TDeco2, TRender2>>).Provider
         return <LeafsContextProvider value={ctx}>{children}</LeafsContextProvider>
     }
 
     return {
-        context: context,
         useLeafs,
         LeafsProvider,
     }
