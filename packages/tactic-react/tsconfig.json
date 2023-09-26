@@ -2,7 +2,8 @@
     "extends": "../tsconfig.json",
     "include": [
         "demo/src",
-        "src"
+        "src",
+        "tests"
     ],
     "exclude": [
         "src/**/*.test.*"

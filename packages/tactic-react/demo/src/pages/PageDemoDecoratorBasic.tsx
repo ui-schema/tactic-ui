@@ -1,7 +1,7 @@
 import { ReactDeco, DecoratorProps, DecoratorPropsNext, DecoratorNextFn, ReactBaseDecorator } from '@tactic-ui/react/Deco'
 import React from 'react'
 import { Typo } from '../components/Styles.js'
-import { createLeafContext, defineLeafEngine } from '@tactic-ui/react/LeafsContext'
+import { createLeafsContext, defineLeafsContext } from '@tactic-ui/react/LeafsContext'
 import { GenericLeafsDataSpec, LeafsRenderMapping, ReactLeafsNodeSpec } from '@tactic-ui/react/LeafsEngine'
 import { CustomLeafDataSpec, CustomLeafDataType, CustomLeafPropsSpec, CustomLeafPropsWithValue, DemoDecoratorProps, DemoDecorator1ResultProps } from './leafs.js'
 
@@ -20,7 +20,7 @@ type CustomLeafsRenderMapping<
     TComponentsMapping extends {} = {},
 > = LeafsRenderMapping<TLeafsMapping, TComponentsMapping>
 
-const context = createLeafContext<
+const context = createLeafsContext<
     GenericLeafsDataSpec, CustomComponents,
     ReactDeco<{}, {}>,
     LeafsRenderMapping<ReactLeafsNodeSpec<GenericLeafsDataSpec>, CustomComponents>
@@ -28,7 +28,7 @@ const context = createLeafContext<
 
 const {
     LeafsProvider, useLeafs,
-} = defineLeafEngine(context)
+} = defineLeafsContext(context)
 
 // a custom context, used as example for props injection in the `LeafNode`
 
