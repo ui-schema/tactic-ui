@@ -18,6 +18,8 @@ export interface LeafsEngine<
     TLeafsDataMapping extends GenericLeafsDataSpec,
     TComponents extends {},
     TDeco extends ReactDeco<{}, {}, {}>,
+    // todo: as here `ReactLeafsNodeSpec<>` us used, it makes the whole `LeafsEngine` typing hard to get correctly customized in complex use cases (ui-schema),
+    //       same as in `LeafsContext.tsx`
     TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponents>,
 > {
     renderMap: TRender

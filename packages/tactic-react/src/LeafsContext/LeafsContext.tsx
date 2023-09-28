@@ -4,19 +4,28 @@ import { LeafsRenderMapping, GenericLeafsDataSpec } from '@tactic-ui/engine/Leaf
 import { ReactLeafsNodeSpec, LeafsEngine } from '@tactic-ui/react/LeafsEngine'
 
 
-export function createLeafContext<
+export function createLeafsContext<
     TLeafsDataMapping extends GenericLeafsDataSpec,
     TComponents extends {},
     TDeco extends ReactDeco<{}, {}, {}>,
+    // todo: as here `ReactLeafsNodeSpec<>` us used, it makes the whole `LeafsEngine` typing hard to get correctly customized in complex use cases (ui-schema),
+    //       same as in `LeafsEngine.ts`
     TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponents>,
->(): React.Context<LeafsEngine<TLeafsDataMapping, TComponents, TDeco, TRender>> {
-    return React.createContext(undefined as any)
+>(initialValue?: LeafsEngine<TLeafsDataMapping, TComponents, TDeco, TRender>): React.Context<LeafsEngine<TLeafsDataMapping, TComponents, TDeco, TRender>> {
+    return React.createContext(initialValue as any)
 }
 
-export function defineLeafEngine<
+/**
+ * @deprecated use `createLeafsContext` instead
+ */
+export const createLeafContext = createLeafsContext
+
+export function defineLeafsContext<
     TLeafsDataMapping extends GenericLeafsDataSpec,
     TComponents extends {},
     TDeco extends ReactDeco<{}, {}, {}>,
+    // todo: as here `ReactLeafsNodeSpec<>` us used, it makes the whole `LeafsEngine` typing hard to get correctly customized in complex use cases (ui-schema),
+    //       same as in `LeafsEngine.ts`
     TRender extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping>, TComponents>,
 >(context: React.Context<LeafsEngine<TLeafsDataMapping, TComponents, TDeco, TRender>>) {
     const useLeafs = <
@@ -35,6 +44,7 @@ export function defineLeafEngine<
         TComponents2 extends TComponents = TComponents,
         TDeco2 extends TDeco = TDeco,
         TRender2 extends LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping2>, TComponents2> = LeafsRenderMapping<ReactLeafsNodeSpec<TLeafsDataMapping2>, TComponents2>,
+        // todo: integrate a typing which validates that the provided deco-result-props are compatible with props of `TRender2['leafs']`
     >(
         {
             children,
@@ -54,3 +64,8 @@ export function defineLeafEngine<
         LeafsProvider,
     }
 }
+
+/**
+ * @deprecated use `defineLeafsContext` instead
+ */
+export const defineLeafEngine = defineLeafsContext
