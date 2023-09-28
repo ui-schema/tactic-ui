@@ -15,15 +15,12 @@ type CustomLeafsNodeSpec = ReactLeafsNodeSpec<CustomLeafPropsSpec>
 type CustomComponents = {
     Container?: React.ComponentType<React.PropsWithChildren<{}>>
 }
-type CustomLeafsRenderMapping<
-    TLeafsMapping extends {} = {},
-    TComponentsMapping extends {} = {},
-> = LeafsRenderMapping<TLeafsMapping, TComponentsMapping>
+type CustomLeafsRenderMapping = LeafsRenderMapping<CustomLeafsNodeSpec, CustomComponents, { type: string }>
 
 const context = createLeafsContext<
-    GenericLeafsDataSpec, CustomComponents,
+    { [k: string]: { type: string } }, CustomComponents,
     ReactDeco<{}, {}>,
-    LeafsRenderMapping<ReactLeafsNodeSpec<GenericLeafsDataSpec>, CustomComponents>
+    LeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: { type: string } }>, CustomComponents, { type: string }>
 >()
 
 const {
@@ -43,7 +40,7 @@ const settingsContext = React.createContext<SettingsContextType>({hideTitles: fa
 type LeafNodeInjected = 'decoIndex' | 'next' | 'settings' | keyof ReturnType<typeof useLeafs>
 
 function LeafNode<
-    TLeafsDataMapping extends GenericLeafsDataSpec,
+    TLeafsDataMapping extends GenericLeafsDataSpec<{ type: string }>,
     TDeco extends ReactDeco<{}, {}> = ReactDeco<{}, {}>,
     TLeafData extends TLeafsDataMapping[keyof TLeafsDataMapping] = TLeafsDataMapping[keyof TLeafsDataMapping],
     TComponentsMapping extends {} = {},
@@ -112,7 +109,7 @@ function DemoDecorator<P extends DecoratorPropsNext>(p: P & DemoDecoratorProps):
 
 type DemoRendererProps = {
     // todo: try to make the render typing a bit stricter without circular CustomLeafProps import dependencies
-    renderMap: CustomLeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, CustomComponents>
+    renderMap: CustomLeafsRenderMapping
     type: string
     settings: SettingsContextType
 }
@@ -129,7 +126,8 @@ function DemoRenderer<P extends DecoratorPropsNext>(
     }: P & DemoDecoratorProps & { id: string } & DemoRendererProps,
 ): React.ReactElement<P> {
     // the last decorator must end the run - decorators afterwards are skipped silently
-    const Leaf = renderMap.leafs[p.type] as any
+    const Leaf = renderMap.matchLeaf(p, renderMap.leafs)
+    if(!Leaf) throw new Error(`Missing leaf for ` + p.type)
 
     return <div className={'mb2'}>
         {settings?.hideTitles ? null : <>
@@ -162,11 +160,11 @@ const deco = new ReactDeco<
     CustomLeafDataType<string> &
     { settings: SettingsContextType } &
     {
-        renderMap: CustomLeafsRenderMapping<ReactLeafsNodeSpec<{ [k: string]: {} }>, CustomComponents>
+        renderMap: CustomLeafsRenderMapping
     }
 >()
     .use(DemoDecorator)
-    // .use((p) => {
+    // .use(function DebugLogDecorator(p) => {
     //     console.log(p.title)
     //     console.log(p.id)
     //     return null
@@ -192,8 +190,9 @@ const ContainerComponent: React.ComponentType<React.PropsWithChildren<{}>> = ({c
     return <div className={'container container-md'}>{children}</div>
 }
 
-const renderMap: CustomLeafsRenderMapping<CustomLeafsNodeSpec, CustomComponents> = {
+const renderMap: CustomLeafsRenderMapping = {
     leafs: leafs,
+    matchLeaf: (params, leafs) => 'type' in params ? leafs[params.type] : undefined,
     components: {
         Container: ContainerComponent,
     },
@@ -206,8 +205,8 @@ const renderMap: CustomLeafsRenderMapping<CustomLeafsNodeSpec, CustomComponents>
 const DemoStatic: React.FC = () => {
     const [settings, setSettings] = React.useState<{ hideTitles?: boolean }>({hideTitles: false})
     return <div className={'flex flex-wrap'}>
-        {/* todo: the engine doesn't validate that decorators and renderMap are compatible */}
         <settingsContext.Provider value={settings}>
+            {/* todo: the engine doesn't validate that decorators and renderMap are compatible */}
             <LeafsProvider<CustomLeafPropsSpec>
                 deco={deco}
                 renderMap={renderMap}
