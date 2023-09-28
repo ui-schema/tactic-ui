@@ -1,6 +1,6 @@
 {
     "name": "@tactic-ui/react",
-    "version": "0.0.9",
+    "version": "0.0.10",
     "description": "",
     "homepage": "",
     "author": "Michael Becker <michael@bemit.codes>",
@@ -33,7 +33,7 @@
         }
     },
     "dependencies": {
-        "@tactic-ui/engine": "~0.0.4"
+        "@tactic-ui/engine": "~0.0.5"
     },
     "devDependencies": {
         "@types/react": "^18.0",
@@ -49,6 +49,5 @@
     },
     "publishConfig": {
         "access": "public"
-    },
-    "gitHead": "c3f7f310627311433b7afae3e1e73177f7e7fdbd"
+    }
 }
