@@ -1,6 +1,6 @@
 {
     "name": "@tactic-ui/engine",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "",
     "homepage": "",
     "author": "Michael Becker <michael@bemit.codes>",
@@ -30,6 +30,5 @@
     },
     "publishConfig": {
         "access": "public"
-    },
-    "gitHead": "c3f7f310627311433b7afae3e1e73177f7e7fdbd"
+    }
 }
